@@ -25,13 +25,14 @@ SECRET_KEY = '#%$0k)+y@ns)#han4r9!2zfx70jzk1r$8u*j8_9)jlal$*ytl$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
     'backend',
+    'analytics',
     'product',
     'cart',
     'django.contrib.admin',
@@ -42,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
-AUTH_USER_MODEL = 'backend.User'
+AUTH_USER_MODEL = 'backend.User' # custom user modelimizi gostermek ucun
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -59,7 +60,7 @@ ROOT_URLCONF = 'ecommerce.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['./templates'],
+        'DIRS': ['./templates'], # html fillerin hamisini bir pathda gostermek ucun
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,10 +124,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR,'static')
+STATIC_ROOT = os.path.join(BASE_DIR,'static') # static file path
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+MEDIA_ROOT = os.path.join(BASE_DIR,'media') # media file path
 
 
-PRODUCT_STOREGE = os.path.join(os.path.dirname(BASE_DIR), "static_cdn", "product_media")
+PRODUCT_STOREGE = os.path.join(os.path.dirname(BASE_DIR), "static_cdn", "product_media") # productun file directoriya
+
+
+
+SUB_TOTAL_PERCENTAGE = 1.08

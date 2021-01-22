@@ -3,6 +3,7 @@ from time import time
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils.text import slugify
+from django.urls import reverse
 # Create your models here.
 
 
@@ -14,7 +15,7 @@ class Product(models.Model):
     slug = models.SlugField(blank=True)
     product_name = models.CharField(max_length=50,blank=True,null=True)
     product_descrption = models.TextField(blank=True,null=True)
-    prodcut_price = models.DecimalField(max_digits=9,decimal_places=2,blank=True,null=True)
+    product_price = models.DecimalField(max_digits=9,decimal_places=2,blank=True,null=True)
     product_discount = models.DecimalField(max_digits=9,decimal_places=1,blank=True,null=True)
     product_discount_price =  models.DecimalField(max_digits=9,decimal_places=2,blank=True,null=True)
     product_image = models.ImageField(blank=True,null=True)
@@ -23,22 +24,26 @@ class Product(models.Model):
     product_vip = models.BooleanField(default=False)
 
 
+    def get_absolute_url(self):
+        return reverse("product_detail", kwargs={"id": self.id})
+    
+
     def __str__(self):
         return self.product_name
-
+# save - new_slug generete & product_discount 0 olmadigi halda endirim qiymetini hesablayir
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = gen_slug(self.product_name)
         if self.product_discount >= 1:
-            change = float(self.prodcut_price) * float(self.product_discount) / 100
-            self.product_discount_price = float(self.prodcut_price) - change
+            change = float(self.product_price) * float(self.product_discount) / 100
+            self.product_discount_price = float(self.product_price) - change
         super().save(*args, **kwargs)
-
+# productun bunun multiple filelarini yuklemek ucundu (self-sozu genen productdan )
     def get_downloads(self):
         qs = self.productfile_set.all()
         return qs
 
-
+# productun ozune mexsus fillerini duzgun diretoriya yaratmagi ucundur
 def upload_product_file_loc(instance,filename):
     slug = instance.product.slug
     id_  = instance.id
@@ -63,6 +68,6 @@ class ProductFile(models.Model):
     file = models.FileField(
         upload_to=upload_product_file_loc,
         storage=FileSystemStorage(location=settings.PRODUCT_STOREGE)
-    )
+    )#upload_to parametrine - upload_product_file_loc funkciyamizi veririk ve storage ise directoriyanin yerini gosterir.
 
 
