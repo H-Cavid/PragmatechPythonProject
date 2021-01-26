@@ -5,7 +5,6 @@ class ObjectViewedMixin(object):
         context = super(ObjectViewedMixin,self).get_context_data(*args, **kwargs)
         request = self.request
         instance = context.get('object')
-        print(instance)
         if instance:
             object_viewd_signal.send(instance.__class__,instance=instance,request=request)
         return context 

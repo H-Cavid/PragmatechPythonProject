@@ -44,11 +44,7 @@ class ObjectViewed(models.Model):
 
 def object_viewd_reciver(sender,instance,request,*args, **kwargs):
     c_type = ContentType.objects.get_for_model(sender)
-    print(c_type)
-    #user = None
-    #if request.user.is_authenticated():
     user = request.user
-    print(instance.id)
     new_view_obj = ObjectViewed.objects.create(
         user=user,
         object_id=instance.id,
@@ -57,3 +53,13 @@ def object_viewd_reciver(sender,instance,request,*args, **kwargs):
     )
 
 object_viewd_signal.connect(object_viewd_reciver)
+
+
+
+
+
+
+
+
+
+

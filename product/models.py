@@ -25,7 +25,7 @@ class Product(models.Model):
 
 
     def get_absolute_url(self):
-        return reverse("product_detail", kwargs={"id": self.id})
+        return reverse("product_detail", kwargs={"slug": self.slug})
     
 
     def __str__(self):
@@ -39,8 +39,16 @@ class Product(models.Model):
             self.product_discount_price = float(self.product_price) - change
         super().save(*args, **kwargs)
 # productun bunun multiple filelarini yuklemek ucundu (self-sozu genen productdan )
+
     def get_downloads(self):
         qs = self.productfile_set.all()
+        
+        return qs
+
+    @property
+    def get_downloads2(self):
+        qs = self.productfile_set.all()
+        
         return qs
 
 # productun ozune mexsus fillerini duzgun diretoriya yaratmagi ucundur
