@@ -24,6 +24,7 @@ class ObjectViewedManager(models.Manager):
         return ObjectViewedQuerySet(self.model, using=self._db)
 
     def by_model(self,model_class,model_queryset=False):
+        # print(model_queryset)
         self.get_queryset().by_model(model_class,model_queryset=model_queryset)
 
 
@@ -44,11 +45,9 @@ class ObjectViewed(models.Model):
 
 def object_viewd_reciver(sender,instance,request,*args, **kwargs):
     c_type = ContentType.objects.get_for_model(sender)
-    print(c_type)
-    #user = None
-    #if request.user.is_authenticated():
-    user = request.user
-    print(instance.id)
+    user = None
+    if request.user.is_authenticated:
+        user = request.user
     new_view_obj = ObjectViewed.objects.create(
         user=user,
         object_id=instance.id,

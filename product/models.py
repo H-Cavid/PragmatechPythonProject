@@ -4,14 +4,15 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils.text import slugify
 from django.urls import reverse
-# Create your models here.
+from category.models import Category
+from utils.genslug import gen_slug
 
-
-def gen_slug(s):
-    new_slug = slugify(s,allow_unicode=True)
-    return new_slug + '-' + str(int(time()))
+# def gen_slug(s):
+#     new_slug = slugify(s,allow_unicode=True)
+#     return new_slug + '-' + str(int(time()))
 
 class Product(models.Model):
+    product_category = models.ForeignKey(Category, on_delete=models.CASCADE,blank=True,null=True)
     slug = models.SlugField(blank=True)
     product_name = models.CharField(max_length=50,blank=True,null=True)
     product_descrption = models.TextField(blank=True,null=True)
@@ -25,7 +26,7 @@ class Product(models.Model):
 
 
     def get_absolute_url(self):
-        return reverse("product_detail", kwargs={"id": self.id})
+        return reverse("product_detail", kwargs={"slug": self.slug})
     
 
     def __str__(self):
