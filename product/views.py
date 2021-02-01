@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import *
+from product.models import *
 from django.views.generic import DetailView
 from analytics.mixins import ObjectViewedMixin
 from cart.models import Cart
