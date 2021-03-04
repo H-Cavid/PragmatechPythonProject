@@ -48,7 +48,7 @@ class BillingProfile(models.Model):
 
 @receiver(post_save, sender=User) # line 46-da create argumentine ehtiyac yoxdu mence, silinmelidi? 
 def user_billing_profile_create(sender, instance, *args, **kwargs):
-    BillingProfile.objects.get_or_create(user=instance) # burda error var hocam:D
+    BillingProfile.objects.get_or_create(user=instance)
 
 
 class CardManager(models.Manager):

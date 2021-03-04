@@ -1,8 +1,6 @@
 from django.shortcuts import render
-from category.models import Category
-from django.views.decorators.csrf import csrf_exempt
-import requests
-from django.http import HttpResponse
+from category.models import *
+
 # Create your views here.
 
 def category(request):
@@ -12,25 +10,17 @@ def category(request):
     }
     return render(request, 'category.html', context)
 
-@csrf_exempt
-def category_products(request, slug):
-    products = Category.products_in_category(slug)
-################POST###############    
-    if request.method == "POST":
-        data2 = request.POST.get ("q")#requestden datani goturruk
-        url = "https://api.teammers.com/project/packets/%7B%7D/?format.json".format(data2)#burda url-e elave elyirik hemin data-ni
-        a = requests.get(url)#burdada hemin url-e request gonderirik
-        print(a.text)
-################GET###############
-    try:
-        data = request.GET.get("q")
-        url = "{}".format(data)
-        a = requests.get(url)
-        return HttpResponse(a.text)
-    except:
-        pass
-
+def category_subcategories(request, cat_slug):
+    subcategories = Category.subcategories_in_category(cat_slug)
     context = {
-        'products':products
+        'subcategories':subcategories
     }
-    return render(request, 'category_products.html', context)
+    return render(request, 'category_subcategories.html', context)
+
+def subcategory_brands(request, cat_slug, subcat_slug):
+    brands = SubCategory.brands_in_subcategory(subcat_slug)
+    context = {
+        'brands':brands
+    }
+    return render(request, 'subcategory_brands.html', context)
+
