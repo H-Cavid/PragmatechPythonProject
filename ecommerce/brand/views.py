@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from category.models import *
+from brand.models import *
 
 # Create your views here.
 
-def brands_product(request,slug):
-    brands = Brand.products_in_brand(slug)
+def brand_products(request, cat_slug, subcat_slug, brand_slug):
+    products = Brand.products_in_brand(brand_slug)
     context = {
-        "brand" : brands
+        'products':products
     }
+    return render(request, 'brand_products.html', context)
 
-    return render(request, "brand.detail.html" , context)
