@@ -75,24 +75,33 @@
             </div>
             <br>
             <br>
-            {% for x in pro%}
-             <div class="add_to_wishlist card" style="width: 18rem;" data-id="{{x.id}}">
-                <img src="" class="card-img-top" alt="">
-                <div class="card-body">
-                    <h5 class="card-title">{{x.product_name}}</h5>
-                    <p class="card-text">{{x.product_descrption}}</p>
-                    <a href="#" class="btn btn-primary">Wishlist</a>
+            <div class="row">
+                {% for x in pro%}
+                <div class="col-md-4">
+                    <div class="add_to_wishlist card" style="width: 18rem;" data-id="{{x.id}}">
+                        <img src="" class="card-img-top" alt="">
+                        <div class="card-body">
+                            <h5 class="card-title">{{x.product_name}}</h5>
+                            <p class="card-text">{{x.product_descrption}}</p>
+                            <a href="#" class="btn btn-primary">Wishlist</a>
+                        </div>
+                    </div>
+                    <div class="delete card" style="width: 18rem;" datas-id="{{x.id}}">
+                            <a href="#" class="btn btn-primary">Delete Wishlist</a>
+                    </div>
+                    <div class="add_to_producthistory card" style="width: 18rem;" data-id="{{x.id}}">
+                        <a href="#" class="btn btn-primary">Add to Product History</a>
+                    </div>
+                    <div class="add_to_card card" style="width: 18rem;" data-id="{{x.id}}">
+                        <a href='{% url "cards_products" %}' class="btn btn-primary">Səbətə Əlavə Et!</a>
+                    </div>
                 </div>
-            </div>
-            <div class="delete card" style="width: 18rem;" datas-id="{{x.id}}">
-                    <a href="#" class="btn btn-primary">Delete Wishlist</a>
-            </div>
-            <div class="add_to_producthistory card" style="width: 18rem;" data-id="{{x.id}}">
-                <a href="#" class="btn btn-primary">Add to Product History</a>
-        </div>
 
             {% endfor%}
+            </div>
             {{request.session.wishlist}}
+            {{request.session.producthistory}}
+            {{request.session.card}}
         </div>
 
 
@@ -134,7 +143,7 @@ $(document).ready(function(){
             url: 'add_to_wishlist/' + id + '/',
             data:data,
             success: function(data){
-                top.location.fref = '{% url "index" %}';
+                top.location.href = '{% url "index" %}';
             }
         })
     })
@@ -174,12 +183,33 @@ $(document).ready(function(){
                 url: 'add_to_producthistory/' + id + '/',
                 data:data,
                 success: function(data){
-                    top.location.fref = '{% url "index" %}';
+                    top.location.href = '{% url "index" %}';
                 }
             })
         })
     })
     </script>
+<script>
+    $(document).ready(function(){
+        $('.add_to_card').on('click', function(e){
+            e.preventDefault()
+            id = $(this).attr('data-id')
+            data = {
+                id:id
+            }
+            $.ajax({
+                headers: {"X-CSRFToken":getCookie("csrftoken")},
+                type: "POST",
+                url: 'add_to_card/' + id + '/',
+                data:data,
+                success: function(data){
+                    location.href = '{% url 'cards_products' %}';
+                }
+            })
+        })
+    })
+    </script>
+    
 </body>
 
 </html>

@@ -34,7 +34,13 @@ class CartMeneger(models.Manager):
                 user_obj = user
         return self.model.objects.create(user=user_obj)
 
+class CartProduct(models.Model):
+    product=models.ForeignKey(Product,on_delete=models.CASCADE,blank=True,null=True)
+    quantity=models.IntegerField(default=1,blank=True,null=True)
 
+    def __str__(self):
+        return self.product.product_name
+        
 class Cart(models.Model):
     # mence user ile cart many_to_many relation olmalidi
     user = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)

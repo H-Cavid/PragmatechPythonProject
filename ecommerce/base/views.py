@@ -41,7 +41,7 @@ def remove_wishlist(request):
         for i in request.session['wishlist']:
             if str(i['id']) == id:
                 i.clear()
-                
+              
         while {} in request.session['wishlist']:
             request.session['wishlist'].remove({})
         if not request.session['wishlist']:
@@ -70,3 +70,21 @@ def add_to_producthistory(request,id):
             request.session['producthistory'].append(add_data)
             request.session.modifier=True
         return redirect('index')
+
+# # def remove_to_producthistory(request):
+#     if request.method == 'POST':
+#         id = request.POST.get('id')
+#         for i in request.session['producthistory']:
+#             if str(i['id']) == id:
+#                 i.clear()
+        
+#         while {} in request.session['producthistory']:
+#             request.session['producthistory'].remove({})
+#         if not request.session['producthistory']:
+#             del request.session['producthistory']
+#     try:
+#         request.session['producthistory'] = list(request.session['producthistory'])
+#     except:
+#         pass
+#     request.session.modifier = True
+#     return JsonResponse({'status':'producthistroy-den silindi'})
