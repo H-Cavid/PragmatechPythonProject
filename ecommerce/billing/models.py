@@ -16,20 +16,30 @@ class BillingProfileManager(models.Manager):
         else:
             qs.user.is_phone_status = True
             qs.user.save()
-        return qs 
+        return qs
+
+    def order_user(self,request):
+        user = request.user
+        profile = self.get_queryset().get(user__username=user)
+        billing_order = [x for x in profile.billing_profile.all()]
+        return billing_order
+
+
 # burda qs-i return edir, ne menasi var bunu return etmenin? ve bu manager, userin ona gonderilen 
 # sifreni duz daxil edib etmediyini yoxluyur?
 
 
 class BillingProfile(models.Model):
-    user = models.OneToOneField(User,on_delete=models.CASCADE,blank=True,null=True)
+    user = models.OneToOneField(User,on_delete=models.CASCADE,blank=True,null=True, related_name='billing_user')
     is_active = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
     customer_id = models.CharField(max_length=100,blank=True,null=True)
 
     objects = BillingProfileManager()
-
+    def __str__(self):
+        return self.user.username
+    
     def get_cards(self):
         return self.card_set.all()
 

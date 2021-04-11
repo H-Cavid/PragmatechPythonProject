@@ -1,44 +1,83 @@
-from django.shortcuts import render,redirect
-from product.models import Product
+from django.shortcuts import render, redirect
+from .models import Product, CartProduct, Cart
 
-def add_to_card(request,id):
-    if request.method =="POST":
-        if not request.session.get('card'):
-            request.session['card']=list()
-        else:
-            request.session['card']=list(request.session['card'])#eger cart varsa sesiyada onu list formasina sal
+# Create your views here.
+from django.views.decorators.csrf import csrf_exempt
 
-        items=next((item for item in request.session['cart'] if item['id']==id),False)
-
-        add_data={
-            'id':id,
-            'quantity':1,
-        }
-
-        if not items:
-            request.session['card'].append(add_data)
-            request.session.modifier=True
-        return redirect('cards_products')
-
-def cards_products(request):
-    #product={'id': 6, 'quantity': 1} [{}]
+def cart_products(request):
     products = []
-    total=0
-    for product in request.session['card']:
-        p_data=dict(product)
-        id=p_data['id']
-        quantity=p_data['quantity']
-        obj=Product.objects.get(id=id)
+    total = 0
+    for product in request.session['cart']:
+        p_data = dict(product)
+        id = p_data['id']
+        quantity = p_data['quantity']
+        obj = Product.objects.get(id=id)
         products.append((obj,quantity))
-        if not obj.product_discount_price:
+        if obj.product_discount :
+            total += obj.product_discount_price * quantity
+        else :
             total += obj.product_price * quantity
-        else:
-             total +=obj.product_discount_price * quantity
-    
-    context={
-        "pro":products,
-        "products_total":total
+    context = {
+        'products':products,
+        'total':total
     }
-    print(products)
-    return render(request, 'cards_products.html',context)
+    return render(request, 'cart_products.html', context)
 
+@csrf_exempt
+def add_to_cart(request, id):
+    if request.method == "POST":
+        if not request.session.get('cart'):
+            request.session['cart'] = list()
+        else:
+            request.session['cart'] = list(request.session['cart'])
+    products = next((item for item in request.session['cart'] if item['id']==id),False)
+    add_product = {
+        'id':id,
+        'quantity':1
+    }
+    if not products:
+        request.session['cart'].append(add_product)
+        request.session.modifier = True
+
+    return redirect('cart_products')
+@csrf_exempt
+def change_quantity(request, id, qyt):
+    id = int(id)
+    qyt = int(qyt)
+    if request.method == 'POST':
+        new_session_data = []
+        for product in request.session['cart']:
+            p_data = dict(product)
+            p_id = p_data['id']
+            if p_id == id:
+                p_data['quantity'] = qyt
+            new_session_data.append(p_data)
+        request.session['cart'] = new_session_data
+        print(new_session_data)
+    return redirect('cart_products')
+
+@csrf_exempt
+def confirm_cart(request):
+    products = []
+    for product in request.session['cart']:
+        id = product['id']
+        quantity = product['quantity']
+        obj = Product.objects.get(id=id)
+        products.append((obj,quantity))
+    context = {
+        'products':products,
+    }
+    if request.method == 'GET':
+        cart_products = []
+        for product in products:
+            p_data = list(product)
+            cart_product,cart_product_value = CartProduct.objects.get_or_create(product=p_data[0], quantity=p_data[1])
+            cart_products.append(cart_product.id)
+        #print(request.session['cart_id'])
+        cart = Cart.object.new_or_get(request)
+        for c in cart_products:
+            cart[0].products.add(c)
+            request.session['cart_id'] = cart[0].id
+
+      
+    return redirect('order')

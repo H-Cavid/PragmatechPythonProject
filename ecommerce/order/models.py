@@ -6,7 +6,11 @@ from cart.models import Cart
 from datetime import datetime, timedelta
 
 # Create your models here.
-
+ORDER_PAYMENT=(
+    ('cash', 'CASH'),
+    ('online', 'Online Bank'),
+    
+)
 ORDER_STATUS_CHOICES=(
     ('created', 'Created'),
     ('paid', 'Paid'),
@@ -61,7 +65,8 @@ class Order(models.Model):
     billing_address = models.ForeignKey(Address,on_delete=models.CASCADE,related_name='billing_address',blank=True,null=True)
     shipping_address_final = models.TextField(blank=True,null=True)
     billing_address_final = models.TextField(blank=True,null=True)
-    cart = models.ForeignKey(Cart,on_delete=models.CASCADE)
+    payment = models.CharField(max_length=20 , choices=ORDER_PAYMENT,blank=True,null=True)
+    cart = models.ForeignKey(Cart,on_delete=models.CASCADE,blank=True,null=True)
     status = models.CharField(max_length=20,default='created',choices=ORDER_STATUS_CHOICES)
     shipping_total = models.DecimalField(default=1.00,max_digits=60,decimal_places=2)
     is_active = models.BooleanField(default=True)
@@ -69,6 +74,18 @@ class Order(models.Model):
     update = models.DateTimeField(auto_now=True)
 
     objects = OrderManager()
+
+
+    def save(self,*args, **kwargs):
+        if len(self.shipping_address_final) > 0:
+            self.shipping_address_final = ""
+        if len(self.billing_address_final) > 0:
+            self.billing_address_final = ""
+        if not self.shipping_address_final:
+            self.shipping_address_final = self.shipping_address.get_address()
+        if not self.billing_address_final:
+            self.billing_address_final = self.billing_address.get_address()
+        super().save(*args, **kwargs)
 
 
 

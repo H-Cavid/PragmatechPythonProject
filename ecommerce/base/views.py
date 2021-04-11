@@ -3,11 +3,50 @@ from category.models import *
 from staticpage.models import *
 from product.models import Product
 from django.http import JsonResponse
-
+from django.views.decorators.csrf import csrf_exempt
+from utils.mixin import DRF
+from django.views.generic import TemplateView,View
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import ProductSerializers
 # Create your views here.
+
+class ProductViews(APIView):
+    def get(self,request):
+        product = Product.objects.all()
+        serializer = ProductSerializers(product,many=True)
+        return Response(serializer.data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def index(request):
     categories = Category.objects.prefetch_related('sub_categories').all()
+    c = Category.objects.get(id=1)
+    a = c.r()
+    print(a)
+    
     sliders = Slider.objects.all()
     #request.session['test'] = 10
     print(request.session.items())
@@ -15,10 +54,12 @@ def index(request):
     context = {
         'categories':categories,
         'sliders':sliders,
-        'pro':products, 
+        'c': c,
+        'products':products, 
     }
-    return render(request,'index.html',context)
-
+    return render(request,'index.html', context)
+    
+@csrf_exempt
 def add_to_wishlist(request,id):
     if request.method == "POST":
         if not request.session.get('wishlist'):
@@ -34,14 +75,13 @@ def add_to_wishlist(request,id):
         request.session.modifier = True
     return redirect('index')
 
-
+@csrf_exempt
 def remove_wishlist(request):
     if request.method == 'POST':
         id = request.POST.get('id')
         for i in request.session['wishlist']:
             if str(i['id']) == id:
                 i.clear()
-              
         while {} in request.session['wishlist']:
             request.session['wishlist'].remove({})
         if not request.session['wishlist']:
@@ -53,38 +93,4 @@ def remove_wishlist(request):
     request.session.modifier = True
     return JsonResponse({'status':'ok'})
 
-def add_to_producthistory(request,id):
-    if request.method == "POST":
-        if not request.session.get('producthistory'):#sesiyaya baxiriq yoxdusa yaratmaliyiq
-            request.session['producthistory'] = list()
-        else:
-            request.session['producthistory']=list(request.session['producthistory'])
 
-        items = next((item for item in request.session['producthistory'] if item['id']==id),False)#Loopnan if sertini list comperisonnan yazdiq
-
-        add_data = {
-            'id':id
-        }
-
-        if not items:
-            request.session['producthistory'].append(add_data)
-            request.session.modifier=True
-        return redirect('index')
-
-# # def remove_to_producthistory(request):
-#     if request.method == 'POST':
-#         id = request.POST.get('id')
-#         for i in request.session['producthistory']:
-#             if str(i['id']) == id:
-#                 i.clear()
-        
-#         while {} in request.session['producthistory']:
-#             request.session['producthistory'].remove({})
-#         if not request.session['producthistory']:
-#             del request.session['producthistory']
-#     try:
-#         request.session['producthistory'] = list(request.session['producthistory'])
-#     except:
-#         pass
-#     request.session.modifier = True
-#     return JsonResponse({'status':'producthistroy-den silindi'})
