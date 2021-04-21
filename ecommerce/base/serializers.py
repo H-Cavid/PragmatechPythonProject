@@ -24,14 +24,37 @@ class ProductFileSerializers(serializers.ModelSerializer):
         exclude = ["product"]
 
 class ProductSerializers(serializers.ModelSerializer):
+    category = serializers.SerializerMethodField()#database-da bele bir sey yoxdu api-da gorunur ancaq bu
     class Meta:
         model = Product
         fields = "__all__"
+
+    def get_category(self,obj):#burda get_yazdigimiz fieldin adi,default olaraq obj qebul elyir
+        # s=float(obj.product_price)
+        # o=str(s)
+        # return  o
+        ids = obj.product_brand.sub_category.category.id
+        category = obj.product_brand.sub_category.category.name
+        data = {
+            "id":ids,
+            "category_name":category,
+        }
+        return data
+    
 
 class ProductDetailSerializers(serializers.ModelSerializer):
     product_brand = BrandSerializers(read_only=True)
     productfile_set=ProductFileSerializers(many=True)
+    brand=serializers.SerializerMethodField()
     class Meta:
         model = Product
         fields = "__all__"
 
+    def get_brand(self,obj):
+        ids = obj.product_brand.id
+        brand=obj.product_brand.name
+        data = {
+            "id":ids,
+            "brand_name":brand,
+        }
+        return data

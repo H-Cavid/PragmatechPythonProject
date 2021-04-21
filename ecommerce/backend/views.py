@@ -9,6 +9,7 @@ from backend.models import User
 class UserDetail(APIView):
 
     def get(self,request):
+        #  print(request.META)
         user=User.objects.filter(id=self.request.user.id)
         serializer=UserSerializers(user,many=True)
         return Response(serializer.data)

@@ -73,3 +73,4 @@ class ProductFile(models.Model):
         upload_to=upload_product_file_loc,
         storage=FileSystemStorage(location=settings.PRODUCT_STOREGE)
     )
+
