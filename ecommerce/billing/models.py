@@ -67,7 +67,7 @@ class CardManager(models.Manager):
 
 
 class Card(models.Model):
-    billing_profile = models.ForeignKey(BillingProfile, on_delete=models.CASCADE)
+    billing_profile = models.ForeignKey(BillingProfile, on_delete=models.CASCADE,related_name="card")
     card_name = models.CharField(max_length=50, blank=True,null=True)
     card_number  = models.CharField(max_length=16, blank=True,null=True)
     exp_month = models.IntegerField()

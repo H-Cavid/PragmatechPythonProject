@@ -24,7 +24,9 @@ class ProductFileSerializers(serializers.ModelSerializer):
         exclude = ["product"]
 
 class ProductSerializers(serializers.ModelSerializer):
+    brand=serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()#database-da bele bir sey yoxdu api-da gorunur ancaq bu
+    sub_category=serializers.SerializerMethodField()
     class Meta:
         model = Product
         fields = "__all__"
@@ -38,23 +40,38 @@ class ProductSerializers(serializers.ModelSerializer):
         data = {
             "id":ids,
             "category_name":category,
+
         }
         return data
     
 
+    def get_sub_category(self,obj):
+        product_sub_category=obj.product_brand.sub_category.name
+        data = {
+            "sub_category_name":product_sub_category,
+        }
+        return data
+    
+    def get_brand(self,obj):
+        product_brand=obj.product_brand.name
+        data = {
+            "product_brand_name":product_brand,
+        }
+        return data
+
 class ProductDetailSerializers(serializers.ModelSerializer):
     product_brand = BrandSerializers(read_only=True)
     productfile_set=ProductFileSerializers(many=True)
-    brand=serializers.SerializerMethodField()
+    # brand=serializers.SerializerMethodField()
     class Meta:
         model = Product
         fields = "__all__"
 
-    def get_brand(self,obj):
-        ids = obj.product_brand.id
-        brand=obj.product_brand.name
-        data = {
-            "id":ids,
-            "brand_name":brand,
-        }
-        return data
+    # def get_brand(self,obj):
+    #     ids = obj.product_brand.id
+    #     brand=obj.product_brand.name
+    #     data = {
+    #         "id":ids,
+    #         "brand_name":brand,
+    #     }
+    #     return data

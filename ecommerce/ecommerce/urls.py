@@ -12,6 +12,7 @@ urlpatterns = [
     path('order/', include('order.urls')),
     path('', include('cart.urls')),
     path('', include('backend.urls')),
+    path('',include('billing.urls')),
 ]
 
 if settings.DEBUG:
