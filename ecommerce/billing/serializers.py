@@ -3,7 +3,6 @@ from billing.models import BillingProfile,Card
 
 
 class BillingProfileSerializers(serializers.ModelSerializer):
-    card_set=
     class Meta:
         model = BillingProfile
         fields = "__all__"

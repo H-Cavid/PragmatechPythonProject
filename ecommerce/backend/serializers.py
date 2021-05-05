@@ -9,6 +9,20 @@ from .models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
+class EmailSerializers(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class PasswordResetSerializers(serializers.Serializer):
+    password = serializers.CharField(write_only=True,required=True,validators=[validate_password])
+    password2 = serializers.CharField(write_only=True,required=True)
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password":"Sifre tekrarinda seflik var"})
+        return attrs
+
+
+
 class TokenPairSerializers(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls,user):
