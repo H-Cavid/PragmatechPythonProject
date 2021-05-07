@@ -53,7 +53,7 @@ def change_quantity(request, id, qyt):
                 p_data['quantity'] = qyt
             new_session_data.append(p_data)
         request.session['cart'] = new_session_data
-        print(new_session_data)
+        # print(new_session_data)
     return redirect('cart_products')
 
 @csrf_exempt

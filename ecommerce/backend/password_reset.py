@@ -28,12 +28,25 @@ class ResetPasswordEmail(APIView):
 
 
 def check_email(request):
+    now_date = datetime.now()
     if request.method == "GET":
         token = request.GET.get('token')
+        register = request.GET.get('register')#register ya true-du yada none-di default true
         try:
             check_token = UserVerify.objects.get(token=token)
-            return redirect('http://127.0.0.1:8000/password_resed/?token=' + f"{check_token.token}")
-            # check_token.delete()
+            if register is None:
+                return redirect('http://127.0.0.1:8000/password_resed/?token=' + f"{check_token.token}")
+            if register is True:
+                if now_date > check_token.date:
+                    check_token.delete()
+                    return JsonRespinse({'error':'Token-in vaxti bitib'})
+                else:
+                    get_user = User.objects.get(id=check_token.user.id)
+                    get_user.is_active = True
+                    get_user.save()
+                    check_token.delete()
+                    return redirect('http://127.0.0.1:8000/api/login/')
+                
         except:
             return JsonResponse({'error':"Invalid Token"})
     return JsonResponse({"data":"None"})

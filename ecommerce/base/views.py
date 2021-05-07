@@ -72,7 +72,7 @@ def index(request):
     
     sliders = Slider.objects.all()
     #request.session['test'] = 10
-    print(request.session.items())
+    # print(request.session.items())
     products = Product.objects.all()[:10]
     context = {
         # 'categories':categories,
