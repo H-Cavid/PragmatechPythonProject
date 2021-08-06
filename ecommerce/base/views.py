@@ -4,80 +4,62 @@ from staticpage.models import *
 from product.models import Product
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from utils.mixin import DRF
-from django.views.generic import TemplateView,View
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import *
-from rest_framework import status
-# Create your views here.
+from rest_framework import permissions, viewsets, status
+from typing import ItemsView
+
+class ModelViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductSerializers
+    queryset = Product.objects.all()
 
 class ProductViews(APIView):
     def get(self,request):
-        product=Product.objects.all()#butun productlarimizi getirirk
-        serializer=ProductSerializers(product,many=True)#serializer-in icine prodcutlarimizi gonderirikki bir bir cevirsin
-        return Response(serializer.data)#response kimide serializerin datasini gonderirik
+        products = Product.objects.all()
+        serializer = ProductSerializers(products, many=True)
+        return Response(serializer.data)
 
     def post(self,request):
-        serializer=ProductSerializers(data=request.data)##menim serializerim=di productdserializerden gelen dataya
+        serializer = ProductSerializers(data=request.data)
         if serializer.is_valid():
-            serializer.save()#eger serializer-da data varsa save elyirik
-            return Response(serializer.data,status=status.HTTP_201_CREATED)#created cavabini gonderirik
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)#yoxdussa 400 error qaytaririq
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
 
 class ProductDetailViews(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def get(self,request,id):
-        product=Product.objects.get(id=id)
+        product = Product.objects.get(id=id)
         serializer = ProductDetailSerializers(product)
         return Response(serializer.data)
 
     def put(self,request,id):
-        serializer=ProductDetailSerializers(data=request.data)##menim serializerim=di productdserializerden gelen dataya
-        if serializer.is_valid():
-            serializer.save()#eger serializer-da data varsa save elyirik
-            return Response(serializer.data,status=status.HTTP_201_CREATED)#created cavabini gonderirik
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)#yoxdussa 400 error qaytaririq
+        if request.user.is_delivery():
+            product = Product.objects.get(id=id)
+            serializer = ProductSerializers(product,data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors)
+        return Response(status=status.HTTP_409_CONFLICT)
 
     def delete(self,request,id):
-        product=Product.objects.get(id=id)
+        product = Product.objects.get(id=id)
         del product
-        return Response({"success":"Mehsul silindi"})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return Response({"success":"Product deleted!"})
 
 def index(request):
-    # categories = Category.objects.prefetch_related('sub_categories').all()
-    # c = Category.objects.get(id=1)
-    # a = c.r()
-    # print(a)
-    
+    categories = Category.objects.prefetch_related('sub_categories').all()
     sliders = Slider.objects.all()
     #request.session['test'] = 10
-    # print(request.session.items())
+    print(request.session.items())
     products = Product.objects.all()[:10]
     context = {
-        # 'categories':categories,
+        'categories':categories,
         'sliders':sliders,
-        # 'c': c,
         'products':products, 
     }
     return render(request,'index.html', context)

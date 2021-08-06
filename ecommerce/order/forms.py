@@ -2,10 +2,8 @@ from django.forms import *
 from .models import Order
 from django.utils.translation import gettext_lazy as _
 
-from django import forms
 
-
-class OrderForm(forms.ModelForm):
+class OrderForm(ModelForm):
     class Meta:
         model = Order
         #fields = ['order_id','cart',]

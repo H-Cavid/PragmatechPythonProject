@@ -1,8 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import *
 from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
-
 # from django.views.generic import DetailView
 # from analytics.mixins import ObjectViewedMixin
 # from cart.models import Cart
@@ -16,7 +14,6 @@ def product_details(request, cat_slug, subcat_slug, brand_slug, product_slug):
     }
     return render(request, 'product_details.html', context)
 
-@csrf_exempt
 def add_to_history(request, id):
     if request.method == "POST":
         if not request.session.get('product_history'):
@@ -35,13 +32,13 @@ def add_to_history(request, id):
 
 # class ProductDetail(ObjectViewedMixin, DetailView):
 #     queryset = Product.objects.all()
-#     template_name = 'products/product.html'
+#     template_name = 'product.html'
 
 #     def get_context_data(self, **kwargs):
 #         context = super(ProductDetail, self).get_context_data(**kwargs)
 #         context["cart"] = 'okey' # niye 'okey' yazmisiq bura?)
 #         return context
-    
+
 #     def get_object(self, *args, **kwargs):
 #         request = self.request
 #         id = self.kwargs.get('id')
@@ -55,4 +52,4 @@ def add_to_history(request, id):
 #         'products': products,
 #         'user': request.user
 #     }
-#     return render(request, 'products/product.html', context)
+#     return render(request, 'product.html', context)

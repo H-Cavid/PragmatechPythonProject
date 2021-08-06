@@ -16,27 +16,20 @@ class BillingProfileManager(models.Manager):
         else:
             qs.user.is_phone_status = True
             qs.user.save()
-        return qs
-
-    def order_user(self,request):
-        user = request.user
-        profile = self.get_queryset().get(user__username=user)
-        billing_order = [x for x in profile.billing_profile.all()]
-        return billing_order
-
-
+        return qs 
 # burda qs-i return edir, ne menasi var bunu return etmenin? ve bu manager, userin ona gonderilen 
 # sifreni duz daxil edib etmediyini yoxluyur?
 
 
 class BillingProfile(models.Model):
-    user = models.OneToOneField(User,on_delete=models.CASCADE,blank=True,null=True, related_name='billing_user')
+    user = models.OneToOneField(User,on_delete=models.CASCADE,blank=True,null=True,related_name='billing_user')
     is_active = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
     customer_id = models.CharField(max_length=100,blank=True,null=True)
 
     objects = BillingProfileManager()
+
     def __str__(self):
         return self.user.username
     
@@ -67,7 +60,7 @@ class CardManager(models.Manager):
 
 
 class Card(models.Model):
-    billing_profile = models.ForeignKey(BillingProfile, on_delete=models.CASCADE,related_name="card")
+    billing_profile = models.ForeignKey(BillingProfile, on_delete=models.CASCADE)
     card_name = models.CharField(max_length=50, blank=True,null=True)
     card_number  = models.CharField(max_length=16, blank=True,null=True)
     exp_month = models.IntegerField()

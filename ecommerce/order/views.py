@@ -1,7 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from .models import *
 from .forms import *
 from address.models import Address
+
+# Create your views here.
 
 def order(request):
     f = OrderForm(request.POST)

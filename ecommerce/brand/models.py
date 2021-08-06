@@ -1,14 +1,14 @@
 from django.db import models
 from utils.genslug import gen_slug
 from django.urls import reverse
-from category.models import *
+from category.models import Category,SubCategory
 
 # Create your models here.
 
 class Brand(models.Model):
     name = models.CharField(max_length=50)
     brand_slug = models.SlugField(blank=True)
-    sub_category = models.ForeignKey(SubCategory,on_delete=models.CASCADE,blank=True,null=True,related_name='brands')
+    sub_category = models.ForeignKey(SubCategory,on_delete=models.CASCADE,blank=True,null=True,related_name='sub_brands')
     
     def __str__(self):
         return self.name

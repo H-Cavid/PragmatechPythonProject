@@ -1,34 +1,17 @@
 from django.db import models
 from utils.genslug import gen_slug
-from utils.mixin import DRF
 from django.urls import reverse
-from brand.models import *
 
 # Create your models here.
-
-
-
-
-
-
-class CategoryManager(models.Manager):
-    obj = DRF()
-    def sub_in_cat(self,**a):
-        b = self.obj.__dict__
-        b.update(**a)
-        return b
-        
-
-
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
     cat_slug = models.SlugField(blank=True)
     title = models.TextField(blank=True, null=True)
-    objects = CategoryManager()
+
     def __str__(self):
         return self.name
-    
+
     def get_absolute_url(self):
         return reverse("category_subcategories", kwargs={"cat_slug":self.cat_slug})
 
@@ -40,10 +23,7 @@ class Category(models.Model):
     def subcategories_in_category(cat_slug):
         category = Category.objects.get(cat_slug=cat_slug)
         return category.sub_categories.all()
-     
-    def r(self):
-        d = Category.objects.sub_in_cat(model=Category,slug='das-1617385606',relation='sub_categories')
-        return d
+        
 
 class SubCategory(models.Model):
     name = models.CharField(max_length=50)
@@ -64,4 +44,3 @@ class SubCategory(models.Model):
     def brands_in_subcategory(subcat_slug):
         subcategory = SubCategory.objects.get(subcat_slug=subcat_slug)
         return subcategory.brands.all()
-
