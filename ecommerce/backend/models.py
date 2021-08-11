@@ -1,17 +1,42 @@
+# from ecommerce.courier.models import STATUS
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.base import Model
 from django.db.models.deletion import CASCADE
+from django.db.models.fields import related
 import jwt
 from datetime import date, datetime, timedelta
 from django.conf import settings
+from phone_field import PhoneField
+from django.dispatch import receiver
+from django.db.models.signals import post_save, pre_save
+
+
 
 # Create your models here.
+# User qeydiyatdan kecende 
+# User ucun userprofile adinda model yaratmaq lazimdir
+# Profile modelin fieldsleri user-e bagli olmalidi avtomatik olaraq elave fieldleri olmalidi diger fieldlar olamlidi
+# user image default her hansisa bir sekil verilmelidi
+# User balance olmalidi
+# User-in sosial linkleri olmalidi
+# User modelden phone fields goturmelidi
+# User modelden email goturmelidi
+# Last name,first name
+#userden inherit ele
+# STATUS = (
+#     ('ÇATDIRILDI','ÇATDIRILDI'),
+#     ('YOLDADIR','YOLDADIR'),
+# )
 
 class User(AbstractUser):
     phone = models.IntegerField(blank=True, null=True)
     is_branch = models.BooleanField(default=True)
     is_delivery = models.BooleanField(default=True)
     is_phone_status = models.BooleanField(default=False)
+
+    def parse_data_log(self):
+        return "ID-si:{} , AD-ı:{} , Soyad-ı:{} , Email-i:{}, nömrəsi:{} olan istifadəçi yaradıldı".format(self.id,self.first_name,self.last_name,self.email,self.phone)
 
 
 class UserAddress(models.Model):
@@ -52,3 +77,39 @@ class UserVerify(models.Model):
             "exp": int(dt.timestamp())
         },settings.SECRET_KEY,algorithm='HS256')
         return token
+
+
+
+
+class Profile(models.Model):
+    created_user=models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
+    user_image = models.ImageField(upload_to='UserProfile_pictures', default='userprofile.jpg')
+    user_balance = models.DecimalField(max_digits=9,decimal_places=2,blank=True,null=True)
+    user_links = models.CharField(max_length=50,blank=True,null=True)
+    user_phone_number =  models.CharField(max_length=20)
+    user_email = models.EmailField(max_length=20)
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    log = models.TextField(blank=True,null=True)
+     # last_name = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='last_name_set')
+    # user_email = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='email_set')
+    # user_phone_number = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='phone_set')
+    # first_name = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='first_name_set')
+    # # user_phone = PhoneField(blank=True, help_text='Contact phone number')
+
+    def __str__(self) -> str:
+        return str(self.user_email)
+
+@receiver(post_save,sender=User)
+def userprofile_parse(instance,created,*args,**kwargs):
+    if created is True:
+    # print(instance.is_phone_status)
+        if instance.is_phone_status is True:
+            log_data = instance.parse_data_log()
+            Profile.objects.create(created_user_id=instance.id,log=log_data,first_name=instance.first_name,last_name=instance.last_name,user_phone_number=instance.phone,
+            user_email=instance.email)
+
+# if instance.is_phone_status = 
+    # print(instance.id)
+    # print(instance.parse_data_log())
+    # print(instance.first_name)

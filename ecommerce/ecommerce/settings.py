@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'phone_field',   
     'courier',
     'channels',
     'chat',

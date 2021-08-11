@@ -14,11 +14,11 @@ def upload_product_file_loc(instance,filename):
     else :
         slug = instance.slug
     _id  = instance.id # print edende birce id gelir, _ isaresini qoymanin menasi tam olaraq nedirki?
-    print(_id)
+    # print(_id)
     if _id is None: # None olmadigi hal var olan obyekti edit etme hali ucundur?
         Klass = instance.__class__
         qs = Klass.objects.all().order_by('-pk')
-        print(qs)
+        # print(qs)
         if qs.exists():
             _id = qs.first().id + 1
         else:
