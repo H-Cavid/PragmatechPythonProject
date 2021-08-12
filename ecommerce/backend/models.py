@@ -39,6 +39,8 @@ class User(AbstractUser):
         return "ID-si:{} , AD-ı:{} , Soyad-ı:{} , Email-i:{}, nömrəsi:{} olan istifadəçi yaradıldı".format(self.id,self.first_name,self.last_name,self.email,self.phone)
 
 
+
+
 class UserAddress(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     address_name = models.CharField(max_length=40)
@@ -49,11 +51,15 @@ class UserAddress(models.Model):
         return self.user.username
 
 
+
+
 class UserOtp(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='user_otp')
     otp = models.CharField(max_length=6)
     rpt = models.IntegerField(default=3)
     date = models.DateTimeField(auto_now=True)
+
+
 
 
 class UserVerify(models.Model):
@@ -84,18 +90,13 @@ class UserVerify(models.Model):
 class Profile(models.Model):
     created_user=models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
     user_image = models.ImageField(upload_to='UserProfile_pictures', default='userprofile.jpg')
-    user_balance = models.DecimalField(max_digits=9,decimal_places=2,blank=True,null=True)
+    user_balance = models.DecimalField(max_digits=9,decimal_places=2,blank=True,null=True,default=0.00)
     user_links = models.CharField(max_length=50,blank=True,null=True)
     user_phone_number =  models.CharField(max_length=20)
     user_email = models.EmailField(max_length=20)
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     log = models.TextField(blank=True,null=True)
-     # last_name = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='last_name_set')
-    # user_email = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='email_set')
-    # user_phone_number = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='phone_set')
-    # first_name = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='first_name_set')
-    # # user_phone = PhoneField(blank=True, help_text='Contact phone number')
 
     def __str__(self) -> str:
         return str(self.user_email)
@@ -113,3 +114,8 @@ def userprofile_parse(instance,created,*args,**kwargs):
     # print(instance.id)
     # print(instance.parse_data_log())
     # print(instance.first_name)
+ # last_name = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='last_name_set')
+    # user_email = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='email_set')
+    # user_phone_number = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='phone_set')
+    # first_name = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='first_name_set')
+    # # user_phone = PhoneField(blank=True, help_text='Contact phone number')

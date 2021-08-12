@@ -1,5 +1,6 @@
+from django.db.models import fields
 from rest_framework import serializers, permissions
-from .models import User
+from .models import Profile, User
 from billing.models import BillingProfile
 from order.models import Order
 from cart.models import Cart, CartProduct
@@ -91,3 +92,11 @@ class UserSerializers(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['billing_user',]
+
+class UserProfileSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
+    
