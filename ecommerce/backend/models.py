@@ -25,13 +25,15 @@ from django.contrib.auth.models import (
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, date_of_birth, password=None):
+    def create_user(self, email,user_name,first_name,date_of_birth=None, password=None,**other_fields):
         """
         Creates and saves a User with the given email, date of
         birth and password.
         """
         if not email:
             raise ValueError('Users must have an email address')
+        if not user_name:
+            raise ValueError("User_name must be given and unique please try again")
 
         user = self.model(
             email=self.normalize_email(email),
@@ -42,13 +44,15 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, date_of_birth, password=None):
+    def create_superuser(self, email,user_name,first_name,date_of_birth=None, password=None,**other_fields):
         """
         Creates and saves a superuser with the given email, date of
         birth and password.
         """
         user = self.create_user(
             email,
+            user_name,
+            first_name,
             password=password,
             date_of_birth=date_of_birth,
         )
@@ -58,22 +62,25 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-    email = models.EmailField(
-        verbose_name='email address',
-        max_length=255,
-        unique=True,
-    )
-    date_of_birth = models.DateField()
+    phone=models.CharField(max_length=12)
+    last_name=models.CharField(max_length=25)
+    first_name=models.CharField(max_length=25)
+    user_name = models.CharField(max_length=25,unique=True,blank=True) 
+    email = models.EmailField(verbose_name='email address',max_length=255,unique=True,)
+    date_of_birth = models.DateField(blank=True,null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['date_of_birth']
+    REQUIRED_FIELDS = ['user_name','first_name']
 
     def __str__(self):
         return self.email
+    
+    def parse_data_log(self):
+        return "ID-si:{} , AD-ı:{} , Soyad-ı:{} , Email-i:{}, nömrəsi:{} olan istifadəçi yaradıldı".format(self.id,self.first_name,self.last_name,self.email,self.phone)
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"
@@ -90,6 +97,16 @@ class User(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+
+@receiver(post_save,sender=User)
+def userprofile_parse(instance,created,*args,**kwargs):
+    print(instance)
+    if created is True:
+    # print(instance.is_phone_status)
+            log_data = instance.parse_data_log()
+            Profile.objects.create(created_user_id=instance.id,log=log_data,first_name=instance.first_name,last_name=instance.last_name,user_phone_number=instance.phone,
+            user_email=instance.email)
 
 
 
