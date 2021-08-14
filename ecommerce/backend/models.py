@@ -1,6 +1,6 @@
 # from ecommerce.courier.models import STATUS
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.db.models.base import Model
 from django.db.models.deletion import CASCADE
 from django.db.models.fields import related
@@ -10,33 +10,100 @@ from django.conf import settings
 from phone_field import PhoneField
 from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save
+# from django.contrib.auth.backends import BaseBackend
+
+#####
+#Username elave etmek lazimdir
+#Create super userde Username elave olunmalidir
+#username yoxlanmalidi olub veya olmamasi
+#username yazilmayanda error vermelidi
+
+from django.db import models
+from django.contrib.auth.models import (
+    BaseUserManager, AbstractBaseUser
+)
+
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, date_of_birth, password=None):
+        """
+        Creates and saves a User with the given email, date of
+        birth and password.
+        """
+        if not email:
+            raise ValueError('Users must have an email address')
+
+        user = self.model(
+            email=self.normalize_email(email),
+            date_of_birth=date_of_birth,
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, date_of_birth, password=None):
+        """
+        Creates and saves a superuser with the given email, date of
+        birth and password.
+        """
+        user = self.create_user(
+            email,
+            password=password,
+            date_of_birth=date_of_birth,
+        )
+        user.is_admin = True
+        user.save(using=self._db)
+        return user
+
+
+class User(AbstractBaseUser):
+    email = models.EmailField(
+        verbose_name='email address',
+        max_length=255,
+        unique=True,
+    )
+    date_of_birth = models.DateField()
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['date_of_birth']
+
+    def __str__(self):
+        return self.email
+
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        # Simplest possible answer: All admins are staff
+        return self.is_admin
 
 
 
-# Create your models here.
-# User qeydiyatdan kecende 
-# User ucun userprofile adinda model yaratmaq lazimdir
-# Profile modelin fieldsleri user-e bagli olmalidi avtomatik olaraq elave fieldleri olmalidi diger fieldlar olamlidi
-# user image default her hansisa bir sekil verilmelidi
-# User balance olmalidi
-# User-in sosial linkleri olmalidi
-# User modelden phone fields goturmelidi
-# User modelden email goturmelidi
-# Last name,first name
-#userden inherit ele
-# STATUS = (
-#     ('ÇATDIRILDI','ÇATDIRILDI'),
-#     ('YOLDADIR','YOLDADIR'),
-# )
 
-class User(AbstractUser):
-    phone = models.IntegerField(blank=True, null=True)
-    is_branch = models.BooleanField(default=True)
-    is_delivery = models.BooleanField(default=True)
-    is_phone_status = models.BooleanField(default=False)
 
-    def parse_data_log(self):
-        return "ID-si:{} , AD-ı:{} , Soyad-ı:{} , Email-i:{}, nömrəsi:{} olan istifadəçi yaradıldı".format(self.id,self.first_name,self.last_name,self.email,self.phone)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -48,7 +115,7 @@ class UserAddress(models.Model):
     city = models.CharField(max_length=10)
 
     def __str__(self):
-        return self.user.username
+        return self.user.email
 
 
 
@@ -101,14 +168,30 @@ class Profile(models.Model):
     def __str__(self) -> str:
         return str(self.user_email)
 
-@receiver(post_save,sender=User)
-def userprofile_parse(instance,created,*args,**kwargs):
-    if created is True:
-    # print(instance.is_phone_status)
-        if instance.is_phone_status is True:
-            log_data = instance.parse_data_log()
-            Profile.objects.create(created_user_id=instance.id,log=log_data,first_name=instance.first_name,last_name=instance.last_name,user_phone_number=instance.phone,
-            user_email=instance.email)
+
+
+
+
+# class User(AbstractUser):
+#     phone = models.IntegerField(blank=True, null=True)
+#     is_branch = models.BooleanField(default=True)
+#     is_delivery = models.BooleanField(default=True)
+#     is_phone_status = models.BooleanField(default=False)
+
+#     def parse_data_log(self):
+#         return "ID-si:{} , AD-ı:{} , Soyad-ı:{} , Email-i:{}, nömrəsi:{} olan istifadəçi yaradıldı".format(self.id,self.first_name,self.last_name,self.email,self.phone)
+
+
+
+
+# @receiver(post_save,sender=User)
+# def userprofile_parse(instance,created,*args,**kwargs):
+#     if created is True:
+#     # print(instance.is_phone_status)
+#         if instance.is_phone_status is True:
+#             log_data = instance.parse_data_log()
+#             Profile.objects.create(created_user_id=instance.id,log=log_data,first_name=instance.first_name,last_name=instance.last_name,user_phone_number=instance.phone,
+#             user_email=instance.email)
 
 # if instance.is_phone_status = 
     # print(instance.id)
@@ -119,3 +202,33 @@ def userprofile_parse(instance,created,*args,**kwargs):
     # user_phone_number = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='phone_set')
     # first_name = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='first_name_set')
     # # user_phone = PhoneField(blank=True, help_text='Contact phone number')
+
+#hasni field registerden kececekse mutleq sekilde unique=true
+
+
+
+# class User(AbstractUser):
+#     phone = models.IntegerField(blank=True, null=True)
+#     is_branch = models.BooleanField(default=True)
+#     is_delivery = models.BooleanField(default=True)
+#     is_phone_status = models.BooleanField(default=False)
+
+#     def parse_data_log(self):
+#         return "ID-si:{} , AD-ı:{} , Soyad-ı:{} , Email-i:{}, nömrəsi:{} olan istifadəçi yaradıldı".format(self.id,self.first_name,self.last_name,self.email,self.phone)
+
+
+# Create your models here.
+# User qeydiyatdan kecende 
+# User ucun userprofile adinda model yaratmaq lazimdir
+# Profile modelin fieldsleri user-e bagli olmalidi avtomatik olaraq elave fieldleri olmalidi diger fieldlar olamlidi
+# user image default her hansisa bir sekil verilmelidi
+# User balance olmalidi
+# User-in sosial linkleri olmalidi
+# User modelden phone fields goturmelidi
+# User modelden email goturmelidi
+# Last name,first name
+#userden inherit ele
+# STATUS = (
+#     ('ÇATDIRILDI','ÇATDIRILDI'),
+#     ('YOLDADIR','YOLDADIR'),
+# )
