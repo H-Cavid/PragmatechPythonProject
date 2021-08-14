@@ -65,19 +65,19 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('email', 'date_of_birth', 'is_admin')
-    list_filter = ('is_admin',)
-    fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('date_of_birth',)}),
-        ('Permissions', {'fields': ('is_admin',)}),
+    list_display = ('email', 'date_of_birth', 'is_admin','user_name','phone','first_name','last_name')#ilk navbar ucundu
+    list_filter = ('is_admin','user_name','phone','first_name')#filterler ucundu
+    fieldsets = (#useerin icini gormek ucundu 3 hisselidi
+        ('Fields for Define User', {'fields': ('email', 'password','user_name')}),
+        ('Personal Info', {'fields': ('date_of_birth','first_name','last_name')}),
+        ('Permissions and Reuired fields', {'fields': ('is_admin','phone')}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
-    add_fieldsets = (
+    add_fieldsets = (#Yeni user elave etmek ucundu
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'date_of_birth', 'password1', 'password2','user_name',),
+            'fields': ('email', 'date_of_birth', 'password1', 'password2','user_name','is_admin','phone','first_name','last_name'),
         }),
     )
     search_fields = ('email',)
