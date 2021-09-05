@@ -1,3 +1,4 @@
+from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
 from category.models import *
 from staticpage.models import *
@@ -55,7 +56,7 @@ def index(request):
     categories = Category.objects.prefetch_related('sub_categories').all()
     sliders = Slider.objects.all()
     #request.session['test'] = 10
-    print(request.session.items())
+    # print(request.session.items())
     products = Product.objects.all()[:10]
     context = {
         'categories':categories,
@@ -98,4 +99,20 @@ def remove_wishlist(request):
     request.session.modifier = True
     return JsonResponse({'status':'ok'})
 
+    #request.GEt elyende verdiyin deyer mutleq olalidi onu gozdursen orda
+    # request.GET bos queryset qaytarir <QueryDict: {}> ama request.GET.get('nese')Request-in get-inin icinde verdiyin deyeri axtarir olmasada isdiyir
+def get_func(request):
+    product = Product.objects.all().order_by("?")
+    data = dict(request.GET)
+    try:
+        data['product_price__gte'] = request.GET['product_price__gte']
+        data['product_price__lte'] = request.GET['product_price__lte']
+    except:
+        pass
+    if len(data)>0:
+        product = Product.objects.filter(**data)
+    context = {
+        'product':product,
+    }
+    return render(request,'product.html',context)
 

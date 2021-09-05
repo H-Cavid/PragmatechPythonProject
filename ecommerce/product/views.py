@@ -7,8 +7,9 @@ from django.shortcuts import get_object_or_404
 
 # Create your views here.
 
-def product_details(request, cat_slug, subcat_slug, brand_slug, product_slug):
+def product_details(request,product_slug):
     product = Product.objects.get(slug=product_slug)
+    product.count_product()
     context = {
         'product':product
     }

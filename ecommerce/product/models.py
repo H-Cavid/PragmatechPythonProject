@@ -46,6 +46,7 @@ class Product(models.Model):
     product_stock = models.BooleanField(default=False)
     product_title = models.TextField(blank=True,null=True)
     product_vip = models.BooleanField(default=False)
+    count = models.IntegerField(default=0,blank=True,null=True)
 
     def __str__(self):
         return self.product_name
@@ -65,6 +66,10 @@ class Product(models.Model):
     def get_downloads(self):
         qs = self.productfile_set.all()
         return qs
+
+    def count_product(self):
+        self.count +=1
+        super().save()
 
 
 class ProductFile(models.Model):
